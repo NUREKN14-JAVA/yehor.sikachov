@@ -58,9 +58,64 @@ public class HsqldbUserDaoTest extends DatabaseTestCase{
 		}
 	}
 	
+	public void testFind(){
+		try {
+			User user = new User();
+			user.setFirstName("John");
+			user.setLastName("Doe");
+			user.setDateOfBirth(tempDate);
+			user = dao.create(user);
+			User tempUser = dao.find(user.getId());
+			assertEquals("Found wrong user", tempUser.getLastName(), user.getLastName());
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+			fail(e.toString());
+		}
+	}
+	
+	public void testUpdate() {
+		try {
+			User user = new User();
+			user.setFirstName("Marti");
+			user.setLastName("Luter");
+			user.setDateOfBirth(tempDate);
+			
+			User userTest = dao.create(user);
+			userTest.setFirstName("Ivan");
+			userTest.setLastName("Groaznyi");
+			userTest.setDateOfBirth(tempDate);
+			userTest.setId(user.getId());
+			
+			dao.update(userTest);
+
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+			fail(e.toString());
+		}
+	}
+	
+	
+	public void testDelete(){
+		try {
+			User user = new User();
+
+			user.setFirstName("John");
+			user.setLastName("Doe");
+			user.setDateOfBirth(tempDate);
+			
+			user = dao.create(user);
+			
+			dao.delete(user);
+			
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+			fail(e.toString());
+		}
+	}
+	
 	@Override
 	protected IDatabaseConnection getConnection() throws Exception {
-		connectionFactory = new ConnectionFactoryImpl();
+		connectionFactory = new ConnectionFactoryImpl("org.hsqldb.jdbcDriver", "jdbc:hsqldb:file:db/usermanagement", "sa", "");
 		return new DatabaseConnection(connectionFactory.createConnection());
 	}
 

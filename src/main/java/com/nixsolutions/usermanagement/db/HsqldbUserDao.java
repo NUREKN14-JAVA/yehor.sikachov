@@ -12,7 +12,13 @@ import java.util.LinkedList;
 
 import com.nixsolutions.usermanagement.User;
 
-public class HsqldbUserDao implements UserDao {
+class HsqldbUserDao implements UserDao {
+
+	private static final String DELETE_FROM_USERS = "DELETE FROM users WHERE id=?";
+
+	private static final String SELECT_ID = "SELECT id, firstname, lastname, dateofbirth FROM users WHERE id=?";
+
+	private static final String UPDATE_USERS = "UPDATE users SET firstname=?, lastname=?, dateofbirth=? WHERE id=?";
 
 	private static final String SELECT_ALL_QUERY = "SELECT id, firstname, lastname, dateofbirth FROM users";
 
@@ -20,7 +26,19 @@ public class HsqldbUserDao implements UserDao {
 	
 	ConnectionFactory connectionFactory;
 	
+	public HsqldbUserDao() {
+
+	}
+
 	public HsqldbUserDao(ConnectionFactory connectionFactory) {
+		this.connectionFactory = connectionFactory;
+	}
+	
+	public ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
+	}
+
+	public void setConnectionFactory(ConnectionFactory connectionFactory) {
 		this.connectionFactory = connectionFactory;
 	}
 
@@ -54,20 +72,75 @@ public class HsqldbUserDao implements UserDao {
 
 	@Override
 	public void update(User user) throws DatabaseException {
-		// TODO Auto-generated method stub
+		try {
+			Connection connection = connectionFactory.createConnection();
+			PreparedStatement statement = connection.prepareStatement(UPDATE_USERS);
+			
+			statement.setString(1, user.getFirstName());
+            statement.setString(2, user.getLastName());
+            statement.setDate(3, new Date(user.getDateOfBirth().getTime()));
+            statement.setLong(4, user.getId());
+            
+            int n = statement.executeUpdate();
+            
+            if (n != 1) {
+                throw new DatabaseException("Number of the updated rows: " + n);
+            }
+            
+			connection.close();
+			statement.close();
+        } catch (DatabaseException e) {
+            throw e;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
 
 	}
 
 	@Override
 	public void delete(User user) throws DatabaseException {
-		// TODO Auto-generated method stub
-
+		try {
+            Connection connection = connectionFactory.createConnection();
+            PreparedStatement statement = connection.prepareStatement(DELETE_FROM_USERS);
+            statement.setLong(1, user.getId().longValue());
+            int n = statement.executeUpdate();
+            if (n != 1) {
+                throw new DatabaseException("Number of the deleted rows: " + n);
+            }
+            statement.close();
+            connection.close();
+        } catch (DatabaseException e) {
+            throw e;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
 	}
 
 	@Override
 	public User find(Long id) throws DatabaseException {
-		// TODO Auto-generated method stub
-		return null;
+		Connection connection = connectionFactory.createConnection();
+
+        User userRes = new User();
+		try {
+			PreparedStatement statement = connection.prepareStatement(SELECT_ID);
+			statement.setLong(1, id);
+			ResultSet result = statement.executeQuery();
+			if (!result.next()) {
+				throw new DatabaseException("Number of the updated rows: " + id);
+			}
+            userRes.setId(new Long(result.getLong(1)));
+            userRes.setFirstName(result.getString(2));
+            userRes.setLastName(result.getString(3));
+            userRes.setDateOfBirth(result.getDate(4));
+            result.close();
+            connection.close();
+            statement.close();
+		} catch (DatabaseException e) {
+	        throw e;
+	    } catch (SQLException e) {
+	        throw new DatabaseException(e);
+	    }
+            return userRes;
 	}
 
 	@Override
@@ -87,6 +160,9 @@ public class HsqldbUserDao implements UserDao {
                 user.setDateOfBirth(resultSet.getDate(4));
                 result.add(user);
 			}
+            statement.close();
+            connection.close();
+            resultSet.close();
 		} catch (DatabaseException e)
 		{
 			throw e;
