@@ -59,14 +59,11 @@ public class HsqldbUserDaoTest extends DatabaseTestCase{
 	}
 	
 	public void testFind(){
-		try {
-			User user = new User();
-			user.setFirstName("John");
-			user.setLastName("Doe");
-			user.setDateOfBirth(tempDate);
-			user = dao.create(user);
-			User tempUser = dao.find(user.getId());
-			assertEquals("Found wrong user", tempUser.getLastName(), user.getLastName());
+		try {		
+			User tempUser = dao.find(new Long(1000));
+			assertEquals("Incorrect first name", tempUser.getFirstName(), "Bill");
+			assertEquals("Incorrect last name", tempUser.getLastName(), "Gates");
+			assertEquals("Incorrect date", tempUser.getDateOfBirth().toString(), "1968-04-26");
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			fail(e.toString());
@@ -78,16 +75,15 @@ public class HsqldbUserDaoTest extends DatabaseTestCase{
 			User user = new User();
 			user.setFirstName("Marti");
 			user.setLastName("Luter");
+			user.setId(new Long(1000));
 			user.setDateOfBirth(tempDate);
 			
-			User userTest = dao.create(user);
-			userTest.setFirstName("Ivan");
-			userTest.setLastName("Groaznyi");
-			userTest.setDateOfBirth(tempDate);
-			userTest.setId(user.getId());
-			
-			dao.update(userTest);
+			dao.update(user);
 
+			User tempUser = dao.find(new Long(1000));
+			assertEquals("Incorrect first name", tempUser.getFirstName(), "Marti");
+			assertEquals("Incorrect last name", tempUser.getLastName(), "Luter");
+			assertEquals("Incorrect date", tempUser.getDateOfBirth().toString(), "1984-05-26");
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			fail(e.toString());

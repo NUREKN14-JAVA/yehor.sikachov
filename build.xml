@@ -8,7 +8,7 @@
 		<delete dir = "${build-dir}"/>
 	</target>
 	
-	<target name="init">
+	<target name="init" depends = "clean"> 
 		<mkdir dir="${build-dir}"/>
 	</target>
 	
@@ -17,7 +17,7 @@
 	</target>
 	
 	
-	<target name="test-compile">
+	<target name="test-compile" depends = "compile">
 		<javac srcdir = "${test-java-dir}" destdir = "${build-dir}"/>
 	</target>
 	
