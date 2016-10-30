@@ -98,9 +98,7 @@ public class HsqldbUserDaoTest extends DatabaseTestCase{
 			user.setFirstName("John");
 			user.setLastName("Doe");
 			user.setDateOfBirth(tempDate);
-			
-			user = dao.create(user);
-			
+			user.setId(new Long(1000));
 			dao.delete(user);
 			
 		} catch (DatabaseException e) {
