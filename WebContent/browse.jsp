@@ -2,7 +2,7 @@
 <html>
 <head><title>User management</title></head>
 <body>
-
+	<form action="<%=request.getContextPath()%>/browse" method="post">
     <table id="userTable" border="1">
         <tr>
             <th></th>
@@ -19,6 +19,16 @@
         </tr>
         </c:forEach>
     </table>
+    <input type="submit" name="addButton" value="Add">
+    <input type="submit" name="editButton" value="Edit">
+    <input type="submit" name="deleteButton" value="Delete">
+    <input type="submit" name="detailsButton" value="Details">
+    </form> 
     
+<c:if test="${requestScope.error != null}">
+    <script>
+        alert('${requestScope.error}');
+    </script>
+</c:if>
 </body>
 </html>

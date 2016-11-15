@@ -24,5 +24,11 @@
     <input type="submit" name="deleteButton" value="Delete">
     <input type="submit" name="detailsButton" value="Details">
     </form> 
+    
+<c:if test="${requestScope.error != null}">
+    <script>
+        alert('${requestScope.error}');
+    </script>
+</c:if>
 </body>
 </html>
