@@ -26,6 +26,8 @@ class HsqldbUserDao implements UserDao {
 	
 	ConnectionFactory connectionFactory;
 	
+	private static final String SELECT_BY_NAMES = "SELECT id, firstname, lastname, dateofbirth FROM users WHERE firstname=? AND lastname=?";
+	
 	public HsqldbUserDao() {
 
 	}
@@ -171,6 +173,34 @@ class HsqldbUserDao implements UserDao {
 		}
 		
 		return result;
+	}
+
+	@Override
+	public Collection find(String firstName, String lastName) throws DatabaseException {
+		Collection result = new LinkedList();
+
+        try {
+            Connection connection = connectionFactory.createConnection();
+            PreparedStatement statement = connection
+                    .prepareStatement(SELECT_BY_NAMES);
+            statement.setString(1, firstName);
+            statement.setString(2, lastName);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                User user = new User();
+                user.setId(new Long(resultSet.getLong(1)));
+                user.setFirstName(resultSet.getString(2));
+                user.setLastName(resultSet.getString(3));
+                user.setDateOfBirth(resultSet.getDate(4));
+                result.add(user);
+            }
+        } catch (DatabaseException e) {
+            throw e;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+
+        return result;
 	}
 
 }
